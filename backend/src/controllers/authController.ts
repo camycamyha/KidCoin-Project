@@ -4,51 +4,54 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
-const JWT_SECRET = 'seu_segredo_aqui'; 
+// Em produção, use uma variável de ambiente (process.env.JWT_SECRET)
+const JWT_SECRET = 'kidcoin_secret_2026'; 
 
 export const login = async (req: Request, res: Response) => {
-  // 1. Recebendo os dados com os nomes corretos do seu schema
-  const { login, senha } = req.body; 
+  // 1. Ajustado para 'email' conforme seu Schema
+  const { email, senha } = req.body; 
 
   try {
-    // 2. Buscando o usuário pelo campo 'login'
-    const user = await prisma.user.findUnique({
-      where: { login }, 
+    // 2. Buscando no modelo 'usuario' e campo 'email'
+    const user = await prisma.usuario.findUnique({
+      where: { email }, 
     });
 
     // 3. Verificando se o usuário existe
     if (!user) {
-      return res.status(401).json({ error: 'Login ou senha inválidos' });
+      return res.status(401).json({ error: 'E-mail ou senha inválidos. 😊' });
     }
 
-    // 4. Validando a senha usando o campo 'senha' do banco
+    // 4. Validando a senha criptografada
     const isPasswordValid = await bcrypt.compare(senha, user.senha);
 
     if (!isPasswordValid) {
-      return res.status(401).json({ error: 'Login ou senha inválidos' });
+      return res.status(401).json({ error: 'E-mail ou senha inválidos. 😊' });
     }
 
-    // 5. Gerando o Token JWT (incluindo o ID e o Login no corpo do token)
+    // 5. Gerando o Token JWT
     const token = jwt.sign(
-      { userId: user.id, login: user.login },
+      { userId: user.id, email: user.email, tipo: user.tipo },
       JWT_SECRET,
       { expiresIn: '1d' }
     );
 
-    // 6. Retorno de sucesso (usando 'nome' conforme seu schema)
+    // 6. Retorno completo para o Front-end
     return res.status(200).json({
-      message: 'Login realizado com sucesso!',
+      message: 'Bem-vindo ao KidCoin!',
       token,
       user: {
         id: user.id,
         nome: user.nome, 
-        login: user.login,
-        tipo: user.tipo // Útil para o Front-end saber se é Aluno ou Professor
+        email: user.email,
+        tipo: user.tipo,   // Essencial para abrir o Dashboard correto
+        salaId: user.salaId, // Se for null, o sistema sabe que ele ainda não tem sala
+        saldo: user.saldo    // Para o aluno já ver quanto tem de KidCoins
       }
     });
 
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: 'Erro interno no servidor' });
+    console.error("Erro no Login:", error);
+    return res.status(500).json({ error: 'Ops! Tivemos um problema técnico no login.' });
   }
 };

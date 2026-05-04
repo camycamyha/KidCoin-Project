@@ -1,21 +1,55 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
-// --- MODELO DE USUÁRIO ATUALIZADO ---
-model User {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  nome      String
-  login     String   @unique
-  senha     String
-  tipo      String   
-  avatar    String   @default("padrao.png")
-  createdAt DateTime @default(now())
+generator client {
+  provider = "prisma-client-js"
 }
 
-// Futuramente, quando criarmos as salas, elas virão aqui embaixo...
+model Sala {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  nome      String
+  codigo    String    @unique
+  usuarios  Usuario[]
+  tarefas   Tarefa[]
+  createdAt DateTime  @default(now())
+}
+
+model Usuario {
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
+  nome  String
+  email String @unique
+  senha String
+  tipo  String // "aluno" ou "professor"
+  saldo Int    @default(0)
+
+  // O '?' permite que o usuário exista sem estar em uma sala
+  salaId String? @db.ObjectId
+  sala   Sala?   @relation(fields: [salaId], references: [id])
+}
+
+model Tarefa {
+  id         String  @id @default(auto()) @map("_id") @db.ObjectId
+  titulo     String
+  recompensa Int     @default(10)
+  concluida  Boolean @default(false)
+
+  // A tarefa precisa estar vinculada a uma sala
+  salaId String @db.ObjectId
+  sala   Sala   @relation(fields: [salaId], references: [id])
+
+  // Relação com o Módulo (para o mapa do ADM)
+  moduloId    String   @db.ObjectId
+  modulo      Modulo   @relation(fields: [moduloId], references: [id])
+}
+
+model Modulo {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  titulo      String
+  descricao   String?
+  ordem       Int      // Para saber qual módulo vem primeiro (1, 2, 3...)
+  posX        Int      // Posição horizontal no seu desenho do mapa
+  posY        Int      // Posição vertical no seu desenho do mapa
+  tarefas     Tarefa[] // Um módulo tem várias tarefas
+}

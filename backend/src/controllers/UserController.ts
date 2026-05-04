@@ -5,8 +5,8 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 export const cadastrarUsuario = async (req: Request, res: Response) => {
-  // 1. Recebendo apenas o que é essencial agora
-  const { nome, login, senha, tipo } = req.body;
+  // 1. Recebendo os dados (usando 'email' conforme o seu Schema)
+  const { nome, email, senha, tipo } = req.body;
 
   try {
     // 2. Validação de Regra de Negócio: Tipo Obrigatório
@@ -16,35 +16,36 @@ export const cadastrarUsuario = async (req: Request, res: Response) => {
       });
     }
 
-    // 3. Verificação de segurança: E-mail/Login duplicado
-    const usuarioExistente = await prisma.user.findUnique({
-      where: { login }
+    // 3. Verificação de segurança: E-mail duplicado (usando campo 'email' do Schema)
+    const usuarioExistente = await prisma.usuario.findUnique({
+      where: { email }
     });
 
     if (usuarioExistente) {
       return res.status(400).json({ error: "Este e-mail já está cadastrado no KidCoin." });
     }
 
-    // 4. Criptografando a senha para segurança (Health 4.0/Fintech)
+    // 4. Criptografando a senha
     const hashedSenha = await bcrypt.hash(senha, 10);
 
-    // 5. Criando o usuário no MongoDB via Prisma
-    const novoUsuario = await prisma.user.create({
+    // 5. Criando o usuário no MongoDB via Prisma (Modelo 'usuario')
+    const novoUsuario = await prisma.usuario.create({
       data: {
         nome: nome,
-        login: login,
+        email: email, 
         senha: hashedSenha,
         tipo: tipo, 
+        saldo: 0
       }
     });
 
-    // 6. Resposta de sucesso (não devolvemos a senha por segurança)
+    // 6. Resposta de sucesso
     return res.status(201).json({ 
       message: `${tipo === "ALUNO" ? "Aluno" : "Professor"} cadastrado com sucesso!`, 
       user: { 
         id: novoUsuario.id, 
         nome: novoUsuario.nome, 
-        login: novoUsuario.login,
+        email: novoUsuario.email,
         tipo: novoUsuario.tipo
       } 
     });
