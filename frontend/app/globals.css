@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --cor-fundo-claro: #fdf2d1;
+  --cor-fundo-escuro: #8ed7ed;
+  --cor-texto-principal: #482516;
+  --cor-primaria: #FF7B5F;
+}
+
+body {
+  background-color: var(--cor-fundo-claro) !important;
+  color: var(--cor-texto-principal);
+  font-family: var(--font-nunito), sans-serif;
+}
+
+/* O Estilo Rubber Hose Base */
+h1, button {
+  font-family: var(--font-fredoka), sans-serif;
+}
+
+.navbar {
+  background-color: var(--cor-fundo-escuro);
+  border: 3px solid var(--cor-texto-principal);
+  padding: 20px;
+  margin: 10px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+button {
+  background-color: var(--cor-primaria);
+  border: 3px solid var(--cor-texto-principal);
+  box-shadow: 4px 4px 0 0 var(--cor-texto-principal);
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.hero-section {
+  padding: 50px;
+  /* Grid de fundo */
+  background-image: radial-gradient(var(--cor-texto-principal) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
