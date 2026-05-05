@@ -126,21 +126,21 @@ Bash
 `# 1. Clonar o repositório
 git clone https://github.com/seu-usuario/kidcoin.git
 
-# 2. Acessar a pasta do projeto
+### 2. Acessar a pasta do projeto
 cd kidcoin
 
-# 3. Instalar dependências
+### 3. Instalar dependências
 npm install
 
-# 4. Configurar variáveis de ambiente
-# Crie um arquivo .env na raiz e adicione:
-# DATABASE_URL="sua_url_do_mongodb"
-# JWT_SECRET="sua_chave_secreta"
+### 4. Configurar variáveis de ambiente
+### Crie um arquivo .env na raiz e adicione:
+### DATABASE_URL="sua_url_do_mongodb"
+### JWT_SECRET="sua_chave_secreta"
 
-# 5. Gerar cliente do Prisma
+### 5. Gerar cliente do Prisma
 npx prisma generate
 
-# 6. Rodar aplicação
+### 6. Rodar aplicação
 npm run dev`
 
 ---
