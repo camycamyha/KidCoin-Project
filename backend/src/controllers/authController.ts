@@ -8,16 +8,16 @@ const prisma = new PrismaClient();
 const JWT_SECRET = 'kidcoin_secret_2026'; 
 
 export const login = async (req: Request, res: Response) => {
-  // 1. Ajustado para 'email' conforme seu Schema
+
   const { email, senha } = req.body; 
 
   try {
-    // 2. Buscando no modelo 'usuario' e campo 'email'
+    
     const user = await prisma.usuario.findUnique({
       where: { email }, 
     });
 
-    // 3. Verificando se o usuário existe
+    // Verifica se o usuário existe
     if (!user) {
       return res.status(401).json({ error: 'E-mail ou senha inválidos. 😊' });
     }
@@ -36,7 +36,7 @@ export const login = async (req: Request, res: Response) => {
       { expiresIn: '1d' }
     );
 
-    // 6. Retorno completo para o Front-end
+    //Retorno completo para o Front-end
     return res.status(200).json({
       message: 'Bem-vindo ao KidCoin!',
       token,

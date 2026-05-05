@@ -27,6 +27,15 @@ const swaggerOptions = {
         url: 'http://localhost:3001',
       },
     ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT'
+        }
+      }
+    },
     paths: {
       // ROTA DE CADASTRO 
       '/api/usuarios/cadastrar': {
@@ -207,6 +216,28 @@ const swaggerOptions = {
           }
         }
       },
+     '/api/alunos/meu-progresso': {
+        get: {
+          summary: 'Dashboard do Aluno: Perfil, Saldo e Progresso',
+          tags: ['Alunos'],
+          security: [
+            {
+              bearerAuth: []
+            }
+          ],
+          responses: {
+            200: { 
+              description: 'Dados do perfil e progresso retornados com sucesso' 
+            },
+            401: { 
+              description: 'Não autorizado: Token ausente ou inválido' 
+            },
+            404: { 
+              description: 'Perfil de aluno não encontrado' 
+            }
+          }
+        }
+      }, 
     }, // Fim do paths
   }, // Fim do definition
   apis: [], 

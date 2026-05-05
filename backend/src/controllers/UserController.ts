@@ -4,19 +4,47 @@ import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
+// Chave secreta (Em um projeto real, isso ficaria no arquivo .env)
+const CHAVE_MESTRA_PROFESSOR = "KIDCOIN-PROF-2026";
+
 export const cadastrarUsuario = async (req: Request, res: Response) => {
-  // 1. Recebendo os dados (usando 'email' conforme o seu Schema)
-  const { nome, email, senha, tipo } = req.body;
+  // 1. Recebendo os dados
+  const { nome, email, senha, tipo, chaveAcesso } = req.body;
 
   try {
-    // 2. Validação de Regra de Negócio: Tipo Obrigatório
-    if (!tipo || (tipo !== "Aluno" && tipo !== "Professor")) {
-      return res.status(400).json({ 
-        error: "Escolha obrigatória: Você precisa selecionar se é ALUNO ou PROFESSOR. 😊" 
-      });
+    // 2. Validação de Campos Obrigatórios (Evita erro de campo vazio no Banco)
+    if (!nome || !email || !senha) {
+      return res.status(400).json({ error: "Por favor, preencha todos os campos obrigatórios." });
     }
 
-    // 3. Verificação de segurança: E-mail duplicado (usando campo 'email' do Schema)
+    // 3. Validação de Regra de Negócio: Tipo de Usuário
+    if (!tipo || (tipo !== "Aluno" && tipo !== "Professor")) {
+      return res.status(400).json({ 
+        error: "Escolha obrigatória: Você precisa selecionar se é Aluno ou Professor. 😊" 
+      });
+    }
+    //TRAVA DE SEGURANÇA: Validação de Professor
+    if (tipo === "Professor") {
+      if (!chaveAcesso) {
+        return res.status(400).json({ error: "Para se cadastrar como Professor, você deve fornecer a chave de acesso da escola." });
+      }
+      
+      if (chaveAcesso !== CHAVE_MESTRA_PROFESSOR) {
+        return res.status(403).json({ error: "Chave de acesso de professor inválida. Verifique com a coordenação." });
+      }
+    }
+    // 4. Validação de Formato de E-mail (Regex)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: "O formato do e-mail digitado é inválido." });
+    }
+
+    // 5. Validação de Segurança: Tamanho da Senha
+    if (senha.length < 6) {
+      return res.status(400).json({ error: "A senha deve ter no mínimo 6 caracteres." });
+    }
+
+    // 6. Verificação de segurança: E-mail duplicado
     const usuarioExistente = await prisma.usuario.findUnique({
       where: { email }
     });
@@ -25,23 +53,23 @@ export const cadastrarUsuario = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Este e-mail já está cadastrado no KidCoin." });
     }
 
-    // 4. Criptografando a senha
+    // 7. Criptografando a senha (Segurança nível bancário)
     const hashedSenha = await bcrypt.hash(senha, 10);
 
-    // 5. Criando o usuário no MongoDB via Prisma (Modelo 'usuario')
+    // 8. Criando o usuário no MongoDB via Prisma
     const novoUsuario = await prisma.usuario.create({
       data: {
-        nome: nome,
-        email: email, 
+        nome,
+        email, 
         senha: hashedSenha,
-        tipo: tipo, 
-        saldo: 0
+        tipo, 
+        saldo: 0 // Todo usuário começa com saldo zerado
       }
     });
 
-    // 6. Resposta de sucesso
+    // 9. Resposta de sucesso (Retornando apenas o necessário, sem a senha)
     return res.status(201).json({ 
-      message: `${tipo === "ALUNO" ? "Aluno" : "Professor"} cadastrado com sucesso!`, 
+      message: `${tipo} cadastrado com sucesso! 🎉`, 
       user: { 
         id: novoUsuario.id, 
         nome: novoUsuario.nome, 
@@ -58,6 +86,7 @@ export const cadastrarUsuario = async (req: Request, res: Response) => {
   }
 };
 
+//Bloco do Aluno concluindo uma tarefa
 export const concluirTarefa = async (req: Request, res: Response) => {
   try {
     const { usuarioId, tarefaId } = req.body;
