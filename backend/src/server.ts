@@ -12,11 +12,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use('/api/usuarios', UserRoutes); 
-app.use('/api/salas', salaRoutes);
-app.use('/auth', authRoutes); // Isso ativa a rota http://localhost:3001/auth/login
-app.use('/api/modulos', moduloRoutes);
-
 
 // Configuração do Swagger Centralizada
 const swaggerOptions = {
@@ -37,7 +32,7 @@ const swaggerOptions = {
       '/api/usuarios/cadastrar': {
         post: {
           summary: 'Cadastra um novo usuário (Aluno ou Professor)',
-          tags: ['Usuarios'],
+          tags: ['Usuários'],
           requestBody: {
             required: true,
             content: {
@@ -45,15 +40,15 @@ const swaggerOptions = {
                 schema: {
                   type: 'object',
                   properties: {
-                    nome: { type: 'string' },   
-                    login: { type: 'string' },
+                    nome: { type: 'string', example: 'Pedro Silva' },   
+                    email: { type: 'string', example: 'pedro@email.com' },
                     senha: { type: 'string' },  
                     tipo: { 
                       type: 'string',
-                      enum: ['ALUNO', 'PROFESSOR'],
-                      example: 'ALUNO' 
+                      enum: ['Aluno', 'Professor']
                     },
-                  }
+                  },
+                  required: ['nome', 'email', 'senha', 'tipo']
                 }
               }
             }
@@ -80,7 +75,7 @@ const swaggerOptions = {
                 schema: {
                   type: 'object',
                   properties: {
-                    login: { type: 'string' },
+                    email: { type: 'string' },
                     senha: { type: 'string' }
                   }
                 }
@@ -147,13 +142,71 @@ const swaggerOptions = {
       //Api do Módulo e Mapa
       '/api/modulos/mapa': {
   get: {
-    summary: 'Retorna a estrutura do mapa/tabuleiro com tarefas',
-    tags: ['Mapa'],
+    summary: 'Consulta a trilha de módulos liberados para o estudante',
+    tags: ['Aprendizado'],
     responses: { 
       200: { description: 'Dados do mapa carregados com sucesso!' } 
     }
   }
-}
+},
+// ROTA DE LISTAR ALUNOS DE UMA SALA ESPECÍFICA
+      '/api/salas/{salaId}/alunos': {
+        get: {
+          summary: 'Lista todos os alunos matriculados em uma sala específica',
+          tags: ['Salas'],
+          parameters: [
+            {
+              name: 'salaId',
+              in: 'path',
+              required: true,
+              description: 'ID da sala que você quer consultar',
+              schema: { type: 'string' }
+            }
+          ],
+          responses: {
+            200: { description: 'Lista de alunos retornada com sucesso' },
+            500: { description: 'Erro interno no servidor' }
+          }
+        }
+      },
+      '/api/salas/mapa/{usuarioId}': {
+        get: {
+          summary: 'Retorna os módulos liberados para o mapa do aluno',
+          tags: ['Salas'],
+          parameters: [
+            {
+              name: 'usuarioId',
+              in: 'path',
+              required: true,
+              description: 'ID do aluno para carregar o mapa dele',
+              schema: { type: 'string' }
+            }
+          ],
+          responses: {
+            200: { description: 'Lista de módulos da trilha retornada com sucesso' },
+            404: { description: 'Aluno não encontrado ou sem sala' }
+          }
+        }
+      },
+      '/api/salas/nome/{nome}': {
+        delete: {
+          summary: 'Deleta uma sala usando o nome',
+          tags: ['Salas'],
+          parameters: [
+            {
+              name: 'nome',
+              in: 'path',
+              required: true,
+              description: 'Nome exato da sala que deseja excluir',
+              schema: { type: 'string' }
+            }
+          ],
+          responses: {
+            200: { description: 'Sala excluída com sucesso' },
+            500: { description: 'Erro interno do servidor' }
+          }
+        }
+      },
     }, // Fim do paths
   }, // Fim do definition
   apis: [], 
@@ -165,6 +218,8 @@ const specs = swaggerJsdoc(swaggerOptions);
 app.use('/auth', authRoutes);
 app.use('/api/usuarios', UserRoutes);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+app.use('/api/salas', salaRoutes);
+app.use('/api/modulos', moduloRoutes);
 
 const PORT = 3001;
 app.listen(PORT, () => {

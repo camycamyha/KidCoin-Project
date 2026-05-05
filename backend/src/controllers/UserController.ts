@@ -10,7 +10,7 @@ export const cadastrarUsuario = async (req: Request, res: Response) => {
 
   try {
     // 2. Validação de Regra de Negócio: Tipo Obrigatório
-    if (!tipo || (tipo !== "ALUNO" && tipo !== "PROFESSOR")) {
+    if (!tipo || (tipo !== "Aluno" && tipo !== "Professor")) {
       return res.status(400).json({ 
         error: "Escolha obrigatória: Você precisa selecionar se é ALUNO ou PROFESSOR. 😊" 
       });
@@ -55,5 +55,43 @@ export const cadastrarUsuario = async (req: Request, res: Response) => {
     return res.status(500).json({ 
       error: "Ops! Tivemos um erro interno ao tentar realizar seu cadastro." 
     });
+  }
+};
+
+export const concluirTarefa = async (req: Request, res: Response) => {
+  try {
+    const { usuarioId, tarefaId } = req.body;
+
+    // 1. Busca a tarefa para saber quanto ela vale
+    const tarefa = await prisma.tarefa.findUnique({
+      where: { id: tarefaId }
+    });
+
+    if (!tarefa || tarefa.concluida) {
+      return res.status(400).json({ error: "Tarefa inválida ou já concluída." });
+    }
+
+    // 2. Transação: Atualiza a tarefa e dá as moedas ao aluno
+    // Usamos o $transaction para garantir que ou acontece os dois, ou nenhum
+    const [tarefaAtualizada, usuarioAtualizado] = await prisma.$transaction([
+      prisma.tarefa.update({
+        where: { id: tarefaId },
+        data: { concluida: true }
+      }),
+      prisma.usuario.update({
+        where: { id: usuarioId },
+        data: {
+          saldo: { increment: tarefa.recompensa }
+        }
+      })
+    ]);
+
+    return res.status(200).json({
+      message: "Missão cumprida!",
+      recompensa: tarefa.recompensa,
+      novoSaldo: usuarioAtualizado.saldo
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Erro ao processar conclusão da tarefa." });
   }
 };

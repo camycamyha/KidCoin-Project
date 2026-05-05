@@ -7,14 +7,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Sala {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  nome      String
-  codigo    String    @unique
-  usuarios  Usuario[]
-  tarefas   Tarefa[]
-  createdAt DateTime  @default(now())
-}
 
 model Usuario {
   id    String @id @default(auto()) @map("_id") @db.ObjectId
@@ -44,12 +36,30 @@ model Tarefa {
   modulo      Modulo   @relation(fields: [moduloId], references: [id])
 }
 
+model Sala {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  nome      String
+  codigo    String   @unique
+  usuarios  Usuario[]
+  tarefas   Tarefa[]
+  
+  // NOVO: Lista de IDs de módulos liberados para esta sala
+  moduloIds String[] @db.ObjectId
+  modulos   Modulo[] @relation(fields: [moduloIds], references: [id])
+  
+  createdAt DateTime @default(now())
+}
+
 model Modulo {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  titulo      String
-  descricao   String?
-  ordem       Int      // Para saber qual módulo vem primeiro (1, 2, 3...)
-  posX        Int      // Posição horizontal no seu desenho do mapa
-  posY        Int      // Posição vertical no seu desenho do mapa
-  tarefas     Tarefa[] // Um módulo tem várias tarefas
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  titulo    String
+  descricao String?
+  ordem     Int      
+  posX      Int      
+  posY      Int      
+  tarefas   Tarefa[] 
+
+  // NOVO: Lista de IDs das salas que possuem este módulo
+  salaIds   String[] @db.ObjectId
+  salas     Sala[]   @relation(fields: [salaIds], references: [id])
 }
