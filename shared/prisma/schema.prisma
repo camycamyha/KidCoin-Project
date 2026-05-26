@@ -1,0 +1,220 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  school   School? @relation(fields: [schoolId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  schoolId String?
+
+  teacherProfile TeacherProfile?
+  studentProfile StudentProfile?
+
+  @@map("users")
+}
+
+model School {
+  id        String   @id @default(uuid())
+  name      String
+  cnpj      String?  @unique
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users      User[]
+  classrooms Classroom[]
+
+  @@map("schools")
+}
+
+model TeacherProfile {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  createdAt DateTime @default(now())
+
+  user       User               @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  classrooms ClassroomTeacher[]
+
+  @@map("teacher_profiles")
+}
+
+model StudentProfile {
+  id         String   @id @default(uuid())
+  userId     String   @unique
+  avatarUrl  String?
+  totalCoins Int      @default(0)
+  totalXp    Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  user        User               @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  classrooms  ClassroomStudent[]
+  submissions Submission[]
+  coinHistory CoinTransaction[]
+  purchases   Purchase[]
+
+  @@map("student_profiles")
+}
+
+model Classroom {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  code        String   @unique
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  school   School @relation(fields: [schoolId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  schoolId String
+
+  teachers   ClassroomTeacher[]
+  students   ClassroomStudent[]
+  activities Activity[]
+
+  @@map("classrooms")
+}
+
+model ClassroomTeacher {
+  classroomId String
+  teacherId   String
+  assignedAt  DateTime @default(now())
+
+  classroom Classroom      @relation(fields: [classroomId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  teacher   TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([classroomId, teacherId])
+  @@map("classroom_teachers")
+}
+
+model ClassroomStudent {
+  classroomId String
+  studentId   String
+  enrolledAt  DateTime @default(now())
+
+  classroom Classroom      @relation(fields: [classroomId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  student   StudentProfile @relation(fields: [studentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([classroomId, studentId])
+  @@map("classroom_students")
+}
+
+model Activity {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  coinReward  Int       @default(10)
+  xpReward    Int       @default(50)
+  status      String    @default("DRAFT")
+  dueDate     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  classroomId String
+
+  questions   Question[]
+  submissions Submission[]
+
+  @@map("activities")
+}
+
+model Question {
+  id          String  @id @default(uuid())
+  activityId  String
+  order       Int
+  text        String
+  options     String
+  answer      String
+  explanation String?
+
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  answers  Answer[]
+
+  @@map("questions")
+}
+
+model Submission {
+  id          String    @id @default(uuid())
+  studentId   String
+  activityId  String
+  status      String    @default("PENDING")
+  score       Int?
+  coinsEarned Int       @default(0)
+  xpEarned    Int       @default(0)
+  submittedAt DateTime?
+  gradedAt    DateTime?
+  createdAt   DateTime  @default(now())
+
+  student  StudentProfile @relation(fields: [studentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  activity Activity       @relation(fields: [activityId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  answers  Answer[]
+
+  @@unique([studentId, activityId])
+  @@map("submissions")
+}
+
+model Answer {
+  id           String  @id @default(uuid())
+  submissionId String
+  questionId   String
+  selected     String
+  isCorrect    Boolean @default(false)
+
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  question   Question   @relation(fields: [questionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("answers")
+}
+
+model CoinTransaction {
+  id          String   @id @default(uuid())
+  studentId   String
+  amount      Int
+  description String
+  createdAt   DateTime @default(now())
+
+  student StudentProfile @relation(fields: [studentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("coin_transactions")
+}
+
+model ShopItem {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  imageUrl    String?
+  price       Int
+  category    String
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  purchases Purchase[]
+
+  @@map("shop_items")
+}
+
+model Purchase {
+  id        String   @id @default(uuid())
+  studentId String
+  itemId    String
+  pricePaid Int
+  boughtAt  DateTime @default(now())
+
+  student StudentProfile @relation(fields: [studentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  item    ShopItem       @relation(fields: [itemId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("purchases")
+}

@@ -1,0 +1,18 @@
+{
+  "name": "@kidcoin/shared",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "db:generate": "prisma generate --schema=./prisma/schema.prisma",
+    "db:migrate": "prisma migrate dev --schema=./prisma/schema.prisma",
+    "db:migrate:prod": "prisma migrate deploy --schema=./prisma/schema.prisma",
+    "db:seed": "node prisma/seed.js",
+    "db:studio": "prisma studio --schema=./prisma/schema.prisma"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.10.0"
+  },
+  "devDependencies": {
+    "prisma": "^5.10.0"
+  }
+}
