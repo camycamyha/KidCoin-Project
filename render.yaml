@@ -1,0 +1,40 @@
+services:
+  # ─── Servidor Principal (monolito) ────────
+  - type: web
+    name: kidcoin-server
+    runtime: node
+    rootDir: server
+    buildCommand: cd .. && npm install --prefix shared && npx prisma generate --schema=shared/prisma/schema.prisma && npm install --prefix server
+    startCommand: node index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: DATABASE_URL
+        sync: false  # preencher manualmente no Render
+      - key: JWT_SECRET
+        sync: false  # preencher manualmente no Render
+      - key: JWT_EXPIRES_IN
+        value: 8h
+      - key: FRONTEND_URL
+        sync: false  # URL do Vercel depois do deploy
+
+  # ─── Report Service (microserviço separado) ─
+  - type: web
+    name: kidcoin-report-service
+    runtime: node
+    rootDir: packages/report-service
+    buildCommand: cd ../.. && npm install --prefix shared && npx prisma generate --schema=shared/prisma/schema.prisma && npm install --prefix packages/report-service
+    startCommand: node src/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3006
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        sync: false

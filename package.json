@@ -2,25 +2,23 @@
   "name": "kidcoin",
   "version": "1.0.0",
   "private": true,
-  "workspaces": [
-    "frontend",
-    "gateway",
-    "packages/*",
-    "shared"
-  ],
   "scripts": {
-    "dev": "concurrently \"npm run dev:gateway\" \"npm run dev:auth\" \"npm run dev:user\" \"npm run dev:classroom\" \"npm run dev:activity\" \"npm run dev:coin\" \"npm run dev:frontend\"",
-    "dev:gateway": "npm run dev --workspace=gateway",
-    "dev:auth": "npm run dev --workspace=packages/auth-service",
-    "dev:user": "npm run dev --workspace=packages/user-service",
-    "dev:classroom": "npm run dev --workspace=packages/classroom-service",
-    "dev:activity": "npm run dev --workspace=packages/activity-service",
-    "dev:coin": "npm run dev --workspace=packages/coin-service",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:report\" \"npm run dev:frontend\"",
+    "dev:server": "npm run dev --workspace=server",
+    "dev:report": "npm run dev --workspace=packages/report-service",
     "dev:frontend": "npm run dev --workspace=frontend",
     "db:generate": "npm run db:generate --workspace=shared",
     "db:migrate": "npm run db:migrate --workspace=shared",
-    "db:seed": "npm run db:seed --workspace=shared"
+    "db:migrate:prod": "cd shared && npx prisma migrate deploy --schema=./prisma/schema.prisma",
+    "db:seed": "npm run db:seed --workspace=shared",
+    "build": "bash scripts/build.sh"
   },
+  "workspaces": [
+    "frontend",
+    "server",
+    "packages/*",
+    "shared"
+  ],
   "devDependencies": {
     "concurrently": "^8.2.2"
   }
