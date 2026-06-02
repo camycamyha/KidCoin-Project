@@ -1,4 +1,4 @@
-# 🪙 KidCoin — Educação Financeira Gamificada
+# 🪙 KidCoin — Educação Financeira Gamificada para Crianças
 
 > Solução de software end-to-end para gamificar a educação financeira infantil através do gerenciamento de tarefas escolares e recompensas digitais.
 
@@ -114,7 +114,7 @@ KidCoin-Project/
 | 02 | Modelagem de dados e configuração do backend | 16/03/2026 | 30/03/2026 |
 | 03 | Implementação de autenticação e middlewares | 01/04/2026 | 05/05/2026 |
 | 04 | Desenvolvimento do frontend e integração | 05/05/2026 | 30/05/2026 |
-| 05 | Testes finais e entrega do projeto | 01/06/2026 | 05/06/2026 |
+| 05 | Testes finais e entrega do projeto | 01/06/2026 | 02/06/2026 |
 
 ---
 
@@ -130,7 +130,7 @@ KidCoin-Project/
 | **Documentação** | Swagger UI (swagger-jsdoc + swagger-ui-express) |
 | **Infraestrutura** | Render (backend), Vercel (frontend) |
 | **Versionamento** | Git / GitHub |
-| **Gestão** | Jira (Metodologia Ágil) |
+| **Gestão** | Jira e Confluence(Metodologia Ágil) |
 
 ---
 
@@ -151,7 +151,7 @@ KidCoin-Project/
 
 - Gamificação efetiva do aprendizado financeiro.
 - Maior engajamento dos alunos nas tarefas escolares.
-- Experiência de usuário fluida e visualmente atraente (estética Rubber Hose).
+- Experiência de usuário fluida e visualmente atraente.
 - Código modularizado com microsserviços e preparado para evolução futura.
 
 ---
@@ -168,7 +168,7 @@ KidCoin-Project/
 
 **1. Clonar o repositório**
 ```bash
-git clone https://github.com/seu-usuario/kidcoin.git
+git clone https://github.com/camycamyha/kidcoin.git
 cd kidcoin
 ```
 
@@ -273,90 +273,3 @@ Para testar rotas protegidas:
 
 -  **Confluence (Wiki):** [Acessar](https://gabrielpozza335-1775085903755.atlassian.net/wiki/x/pwDw)
 -  **Jira (Board):** [Acessar](https://gabrielpozza335-1775085903755.atlassian.net/jira/software/projects/KID/list/)
--  **Documento de Requisitos (PRD):** *(adicionar link)*
-
-
--------------------------------------------------
-# 🪙 KidCoin — Educação Financeira para Crianças
-
-SaaS de educação financeira gamificado para crianças de até 10 anos.
-
-## Stack
-
-- **Frontend**: React 18 + Vite + Axios
-- **Gateway**: Express (porta 3000)
-- **Microserviços**: Express (portas 3001–3005)
-- **ORM**: Prisma
-- **Banco**: SQL Server
-- **Auth**: JWT
-
-## Estrutura do Monorepo
-
-```
-kidcoin/
-├── frontend/               # React — 3 dashboards (admin, professor, aluno)
-├── gateway/                # API Gateway — CORS, auth middleware, proxy
-├── packages/
-│   ├── auth-service/       # Login + JWT (porta 3001)
-│   ├── user-service/       # Usuários e perfis (porta 3002)
-│   ├── classroom-service/  # Salas e turmas (porta 3003)
-│   ├── activity-service/   # Atividades e submissões (porta 3004)
-│   └── coin-service/       # Moedas + loja (porta 3005)
-└── shared/
-    ├── prisma/             # schema.prisma + migrations (SQLServer)
-    ├── middlewares/        # auth.middleware + error.middleware
-    └── utils/
-```
-
-## Usuários e Perfis
-
-| Role    | Acesso |
-|---------|--------|
-| ADMIN   | Dashboard geral, professores, relatórios da escola |
-| TEACHER | Salas, atividades, progresso de alunos |
-| STUDENT | Atividades, moedas, loja de itens, avatar |
-
-## Primeiros Passos
-
-### 1. Configurar variáveis de ambiente
-```bash
-cp .env.example .env
-# Edite o DATABASE_URL com suas credenciais SQL Server
-```
-
-### 2. Instalar dependências
-```bash
-npm install
-```
-
-### 3. Gerar o Prisma Client e rodar migrations
-```bash
-npm run db:generate
-npm run db:migrate
-```
-
-### 4. Popular o banco com dados de teste
-```bash
-npm run db:seed
-```
-
-### 5. Rodar todos os serviços
-```bash
-npm run dev
-```
-
-## Usuários de Teste (após seed)
-
-| Perfil    | E-mail               | Senha     |
-|-----------|----------------------|-----------|
-| Admin     | admin@kidcoin.com    | Admin@123 |
-| Professor | prof@kidcoin.com     | Prof@123  |
-| Aluno     | aluno@kidcoin.com    | Aluno@123 |
-
-## Fluxo de Autenticação
-
-```
-React → POST /auth/login → Gateway → auth-service → retorna JWT
-React → toda req com header Authorization: Bearer <token>
-Gateway → valida JWT → repassa pro microserviço correto
-```
