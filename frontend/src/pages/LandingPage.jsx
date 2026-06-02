@@ -182,7 +182,7 @@ export default function LandingPage() {
                 cursor: 'pointer', boxShadow: '0 8px 28px rgba(124,58,237,0.32)',
                 fontFamily: 'Nunito, sans-serif',
               }}>
-                🚀 Começar agora
+                 Começar agora
               </button>
               <button onClick={() => document.getElementById('como-funciona')?.scrollIntoView({ behavior: 'smooth' })} style={{
                 background: '#fff', border: '2px solid #E5E3F0', borderRadius: 50,
@@ -482,11 +482,9 @@ export default function LandingPage() {
             cursor: 'pointer', boxShadow: '0 10px 36px rgba(255,159,67,0.5)',
             fontFamily: 'Nunito, sans-serif',
           }}>
-            🚀 Entrar no KidCoin
+             Entrar no KidCoin
           </button>
-          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14, marginTop: 20, fontWeight: 600 }}>
-            Gratuito para escolas parceiras
-          </p>
+          
         </div>
       </section>
 
@@ -504,7 +502,7 @@ export default function LandingPage() {
           Educação financeira para crianças de 8 a 10 anos
         </p>
         <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 13, marginTop: 12, fontWeight: 600 }}>
-          © 2025 KidCoin — Todos os direitos reservados
+          © 2026 KidCoin — Todos os direitos reservados
         </p>
       </footer>
     </div>
