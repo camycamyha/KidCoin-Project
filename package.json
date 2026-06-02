@@ -11,7 +11,8 @@
     "db:migrate": "npm run db:migrate --workspace=shared",
     "db:migrate:prod": "cd shared && npx prisma migrate deploy --schema=./prisma/schema.prisma",
     "db:seed": "npm run db:seed --workspace=shared",
-    "build": "bash scripts/build.sh"
+    "build": "bash scripts/build.sh",
+    "start": "node server/index.js"
   },
   "workspaces": [
     "frontend",
