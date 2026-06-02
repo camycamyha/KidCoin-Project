@@ -85,25 +85,22 @@ async function main() {
   })
   console.log('✓ Sala criada:', classroom.name)
 
-  // Itens da loja
+  // Itens da loja — busca por nome para evitar duplicatas
   const items = [
-    { name: 'Chapéu de Cowboy', category: 'hat', price: 30, imageUrl: '/items/hat-cowboy.png' },
-    { name: 'Óculos de Sol', category: 'accessory', price: 20, imageUrl: '/items/glasses.png' },
-    { name: 'Camiseta Azul', category: 'shirt', price: 25, imageUrl: '/items/shirt-blue.png' },
-    { name: 'Tênis Colorido', category: 'shoes', price: 40, imageUrl: '/items/shoes-color.png' },
+    { name: 'Chapéu de Cowboy', category: 'hat',       price: 30, imageUrl: '/items/hat-cowboy.png' },
+    { name: 'Óculos de Sol',    category: 'accessory', price: 20, imageUrl: '/items/glasses.png' },
+    { name: 'Camiseta Azul',    category: 'shirt',     price: 25, imageUrl: '/items/shirt-blue.png' },
+    { name: 'Tênis Colorido',   category: 'shoes',     price: 40, imageUrl: '/items/shoes-color.png' },
     { name: 'Mochila Espacial', category: 'accessory', price: 50, imageUrl: '/items/backpack.png' },
   ]
 
-  for (const item of items) {
-    await prisma.shopItem.upsert({
-      where: { id: item.name },
-      update: {},
-      create: item,
-    }).catch(() => prisma.shopItem.create({ data: item }))
-  }
+  await prisma.shopItem.createMany({
+    data: items,
+    skipDuplicates: true,
+  })
   console.log('✓ Itens da loja criados')
 
-  console.log('\n🎉 Seed concluído!')
+  console.log('\n Seed concluído!')
   console.log('\nUsuários de teste:')
   console.log('  Admin:     admin@kidcoin.com  / Admin@123')
   console.log('  Professor: prof@kidcoin.com   / Prof@123')

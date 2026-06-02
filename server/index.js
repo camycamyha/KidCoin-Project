@@ -1,6 +1,8 @@
 // server/index.js
 const express = require('express')
 const cors = require('cors')
+const swaggerUi = require('swagger-ui-express')
+const swaggerSpec = require('./swagger')
 const { authMiddleware } = require('../shared/middlewares/auth.middleware')
 const { errorMiddleware } = require('../shared/middlewares/error.middleware')
 
@@ -32,6 +34,14 @@ app.use((req, res, next) => {
   next()
 })
 
+// ─── Swagger ─────────────────────────────
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customSiteTitle: 'KidCoin API Docs',
+  swaggerOptions: {
+    persistAuthorization: true,
+  },
+}))
+
 // ─── Health Check ─────────────────────────
 app.get('/health', (req, res) => res.json({
   status: 'ok',
@@ -56,6 +66,7 @@ app.use('/shop', shopRoutes)
 app.use(errorMiddleware)
 
 app.listen(PORT, () => {
-  console.log(`🚀 KidCoin Server rodando em http://localhost:${PORT}`)
-  console.log(`   Serviços: auth | users | classrooms | activities | coins | shop`)
+  console.log(`KidCoin Server rodando em http://localhost:${PORT}`)
+  console.log(`Serviços: auth | users | classrooms | activities | coins | shop`)
+  console.log(`Documentação Swagger: http://localhost:${PORT}/api-docs`)
 })

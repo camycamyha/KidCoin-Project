@@ -9,9 +9,6 @@ node_modules/
 .env.development
 .env.production
 
-# Prisma
-shared/prisma/migrations/*.sql
-
 # Build
 dist/
 build/
